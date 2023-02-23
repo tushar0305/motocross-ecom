@@ -1,0 +1,142 @@
+{% extends "../layout.html" %}
+{% load static %}
+{% block title %}Basket Summary{% endblock %}
+{% block content %}
+
+<!-- previou boottrap file -->
+<link rel="stylesheet" href="{% static 'ecom/css/pev_bootstrap.css' %}">
+<link rel="stylesheet" href="{% static 'ecom/css/pev_style.css' %}">
+
+<main class="pt-5">
+    <div class="container">
+        <h2 class="h2">Shopping basket</h2>
+        {% for item in basket %}
+        {% with product=item.product %}
+        <div class="container">
+        <main class="pt-1">
+        <div data-index="{{product.id}}" class="row mb-4 border product-item">
+            <div class="row g-3">
+                <div class="col-md-5 col-lg-5 order-md-first bg-white">
+                    <img class="img-fluid mx-auto d-block" width="200px" alt="Responsive image"
+                        src="{{ product.part_name.photo.url }}">
+                </div>
+                <div class="col-md-7 col-lg-7 ps-md-3 ps-lg-5">
+                    <div class="col border-bottom">
+                        <h1 class="mb-0 h1">{{ product.part_name }}</h1>
+                        <div>
+
+                            <div class="border">
+                                <div class="col border-bottom">
+                                    <div class="row p-3">
+                                        <div class="col-6">Product</div>
+                                        <div class="col-6 text-end"><span class="h6 fw-bold">{{ product.price }}
+                                                &#8377</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="row p-3">
+                                        <div class="col-12">
+                                            <label for="select{{product.id}}">Qty</label>
+                                            <select id="select{{product.id}}">
+                                                <option selected>
+                                                    {{item.qty}}
+                                                </option>
+                                                <option value="">1</option>
+                                                <option value="">2</option>
+                                                <option value="">3</option>
+                                                <option value="">4</option>
+                                                <option value="">5</option>
+                                                <option value="">6</option>
+                                                <option value="">7</option>
+                                                <option value="">8</option>
+                                                <option value="">9</option>
+                                                <option value="">10</option>
+
+                                            </select>
+                                            <button type="button" id="update-button" data-index="{{product.id}}"
+                                                class="btn btn-outline-primary btn-sm update-button">
+                                                Update
+                                            </button>
+                                            <button type="button" id="delete-button" data-index="{{product.id}}"
+                                                class="btn btn-outline-danger btn-sm delete-button">
+                                                Delete
+                                            </button>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </main>
+        </div>
+
+        {% endwith %}
+        {% endfor %}
+        <div class="col-12 text-end">
+            <div class="h6 fw-bold">Sub Total:
+                <div id="subtotal" class="d-inline-flex">{{basket.get_total_price}} &#8377</div>
+
+            </div>
+
+            </br>
+            <!--            <div class="btn btn-outline-success" >Check Out</div>-->
+            {% if basket.get_total_price > 0 %}
+            <a type="button" role="button" href="{% url 'payment:shipping' %}"
+                class="btn btn-outline-success mb-5">Check Out</a>
+            {% else %}
+            <a type="button" role="button" href="" class="btn btn-outline-secondary disabled mb-5">Check Out</a>
+            {% endif %}
+        </div>
+    </div>
+</main>
+
+<script>
+    // Delete Item
+    $(document).on('click', '.delete-button', function (e) {
+        e.preventDefault();
+        var prodid = $(this).data('index');
+        $.ajax({
+            type: 'POST',
+            url: '{% url "basket:basket_delete" %}',
+            data: {
+                productid: $(this).data('index'),
+                csrfmiddlewaretoken: "{{csrf_token}}",
+                action: 'post'
+            },
+            success: function (json) {
+                $('.product-item[data-index="' + prodid + '"]').remove();
+                document.getElementById("subtotal").innerHTML = json.subtotal;
+                document.getElementById("basket-qty").innerHTML = json.qty
+            },
+            error: function (xhr, errmsg, err) { }
+        });
+    })
+
+    // Update Item
+    $(document).on('click', '.update-button', function (e) {
+        e.preventDefault();
+        var prodid = $(this).data('index');
+        $.ajax({
+            type: 'POST',
+            url: '{% url "basket:basket_update" %}',
+            data: {
+                productid: $(this).data('index'),
+                productqty: $('#select' + prodid + ' option:selected').text(),
+                csrfmiddlewaretoken: "{{csrf_token}}",
+                action: 'post'
+            },
+            success: function (json) {
+                document.getElementById("basket-qty").innerHTML = json.qty
+                document.getElementById("subtotal").innerHTML = json.subtotal
+            },
+            error: function (xhr, errmsg, err) { }
+        });
+    })
+</script>
+
+{% endblock %}

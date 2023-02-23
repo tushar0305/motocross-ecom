@@ -1,0 +1,78 @@
+{% extends "../layout.html" %}
+{% load static %}
+{% block title %}Payment Summary{% endblock %}
+{% block content %}
+
+<!-- previou boottrap file -->
+<link rel="stylesheet" href="{% static 'ecom/css/pev_bootstrap.css' %}">
+<link rel="stylesheet" href="{% static 'ecom/css/pev_style.css' %}">
+
+<main class="pt-5">
+    <div class="container">
+        <h2 class="h2">Confirm Your Order</h2>
+        <div id="card-errors" class="a" role="alert"></div>
+        {% for item in basket %}
+        {% with product=item.product %}
+        <div class="container">
+            <main class="pt-0">
+                <div data-index="{{product.id}}" class="row mb-1 border product-item">
+                    <div class="row g-3">
+                        <div class="col-md-2 col-lg-2 order-md-first bg-white">
+                            <img class="img-fluid mx-auto d-block" width="50px" alt="Responsive image"
+                                 src="{{ product.part_name.photo.url }}">
+                        </div>
+                        <div class="col-md-10 col-lg-10 ps-md-3 ps-lg-7">
+                                <span class="h5 fw-bold"><a href="{{ product.get_absolute_url }}"
+                                                                    class="text-decoration-none text-reset">{{ product.part_name }} &nbsp;&nbsp;</a></span>
+                                <span class="h6 fw-bold"> {{ product.price }} &#8377 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                                <span class="h6 fw-bold">Quantity:- {{ item.qty }}</span>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+        {% endwith %}
+        {% endfor %}
+
+        <div class="h4 fw-bold text-danger">{{ amount }} &#8377</div>
+        <button class="btn btn-outline-success" id="pay-btn">Pay</button>
+
+    </div>
+</main>
+<script src="https://checkout.razorpay.com/v1/checkout.js">
+
+</script>
+<script>
+    var options = {
+        key: "{{ razorpay_merchant_key }}",
+        amount: "{{ razorpay_amount }}",
+        currency: "INR",
+        name: "MOTOCROSS",
+        order_id: "{{ razorpay_order_id }}",
+        callback_url: "{{ callback_url }}",
+    };
+
+    var rzp1 = new Razorpay(options);
+
+    document.getElementById("pay-btn").onclick = function (e) {
+        rzp1.open();
+        e.preventDefault();
+    };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+{% endblock %}

@@ -1,0 +1,225 @@
+{% extends "store/layout.html" %}
+{% load static %}
+{% block title %}
+
+
+{% endblock %}
+{% block content %}
+
+<!-- previou boottrap file -->
+<link rel="stylesheet" href="{% static 'ecom/css/pev_bootstrap.css' %}">
+<link rel="stylesheet" href="{% static 'ecom/css/prev_style.css' %}">
+
+<div class="container">
+    <main class="pt-5">
+        <div class="row g-3">
+            <div class="col-md-5 col-lg-5 order-md-first bg-white">
+                <img class="img-fluid mx-auto d-block" width="400px" alt="Responsive image" src="{{ product.part_name.photo.url }}">
+            </div>
+            <div class="col-md-7 col-lg-7 ps-md-3 ps-lg-5">
+                <div class="col border-bottom">
+                    <h1 class="mb-0 h4">{{ product.part_name }}</h1>
+			<p> </p>
+                    <div>
+                        <div class="border">
+                            <div class="col border-bottom">
+                                <div class="row p-3">
+                                    <div class="col-6 h4">Product:-<strong>{{product.part_name}}</strong></div>
+                                    <div class="col-6 text-end"><span class="h4 fw-bold">{{ product.price }} &#8377</span></div>
+                                </div>
+                            </div>
+				<div class="mt-4">
+					<p>{{product.part_name.item_Description}}</p>
+				</div>
+					
+                            <div class="col">
+                                <div class="row p-3">
+                                    <div class="qty mt-5" style="width: 31%">
+                                        <span id="minus" class="minus bg-black">-</span>
+                                        <input type="number" class="count" name="qty" value="1">
+                                        <span id="plus" class="plus bg-black">+</span>
+                                    </div>
+                                    <div class="qty mt-5" style="width: 31%">
+                                        <button type="button" id="add-button" value="{{product.id}}" class="btn btn-primary btn-sm">Add to basket
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+    </main>
+
+</div>
+
+<script>
+    $(document).on('click', '#add-button', function (e) {
+        e.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: '{% url "basket:basket_add" %}',
+            data: {
+                productid: $('#add-button').val(),
+                productqty: $('.count').val(),
+                csrfmiddlewaretoken: "{{csrf_token}}",
+                action: 'post'
+            },
+            success: function (json) {
+                document.getElementById("basket-qty").innerHTML = json.qty
+            },
+            error: function (xhr, errmsg, err) { }
+        });
+    })
+    $('.btn-number').click(function (e) {
+        e.preventDefault();
+
+        fieldName = $(this).attr('data-field');
+        type = $(this).attr('data-type');
+        var input = $("input[name='" + fieldName + "']");
+        var currentVal = parseInt(input.val());
+        if (!isNaN(currentVal)) {
+            if (type == 'minus') {
+
+                if (currentVal > input.attr('min')) {
+                    input.val(currentVal - 1).change();
+                }
+                if (parseInt(input.val()) == input.attr('min')) {
+                    $(this).attr('disabled', true);
+                }
+
+            } else if (type == 'plus') {
+
+                if (currentVal < input.attr('max')) {
+                    input.val(currentVal + 1).change();
+                }
+                if (parseInt(input.val()) == input.attr('max')) {
+                    $(this).attr('disabled', true);
+                }
+
+            }
+        } else {
+            input.val(0);
+        }
+    });
+    $('.input-number').focusin(function () {
+        $(this).data('oldValue', $(this).val());
+    });
+    $('.input-number').change(function () {
+
+        minValue = parseInt($(this).attr('min'));
+        maxValue = parseInt($(this).attr('max'));
+        valueCurrent = parseInt($(this).val());
+
+        name = $(this).attr('name');
+        if (valueCurrent >= minValue) {
+            $(".btn-number[data-type='minus'][data-field='" + name + "']").removeAttr('disabled')
+        } else {
+            alert('Sorry, the minimum value was reached');
+            $(this).val($(this).data('oldValue'));
+        }
+        if (valueCurrent <= maxValue) {
+            $(".btn-number[data-type='plus'][data-field='" + name + "']").removeAttr('disabled')
+        } else {
+            alert('Sorry, the maximum value was reached');
+            $(this).val($(this).data('oldValue'));
+        }
+
+
+    });
+    $('.btn-number').click(function (e) {
+        e.preventDefault();
+
+        fieldName = $(this).attr('data-field');
+        type = $(this).attr('data-type');
+        var input = $("input[name='" + fieldName + "']");
+        var currentVal = parseInt(input.val());
+        if (!isNaN(currentVal)) {
+            if (type == 'minus') {
+
+                if (currentVal > input.attr('min')) {
+                    input.val(currentVal - 1).change();
+                }
+                if (parseInt(input.val()) == input.attr('min')) {
+                    $(this).attr('disabled', true);
+                }
+
+            } else if (type == 'plus') {
+
+                if (currentVal < input.attr('max')) {
+                    input.val(currentVal + 1).change();
+                }
+                if (parseInt(input.val()) == input.attr('max')) {
+                    $(this).attr('disabled', true);
+                }
+
+            }
+        } else {
+            input.val(0);
+        }
+    });
+    $('.input-number').focusin(function () {
+        $(this).data('oldValue', $(this).val());
+    });
+    $('.input-number').change(function () {
+
+        minValue = parseInt($(this).attr('min'));
+        maxValue = parseInt($(this).attr('max'));
+        valueCurrent = parseInt($(this).val());
+
+        name = $(this).attr('name');
+        if (valueCurrent >= minValue) {
+            $(".btn-number[data-type='minus'][data-field='" + name + "']").removeAttr('disabled')
+        } else {
+            alert('Sorry, the minimum value was reached');
+            $(this).val($(this).data('oldValue'));
+        }
+        if (valueCurrent <= maxValue) {
+            $(".btn-number[data-type='plus'][data-field='" + name + "']").removeAttr('disabled')
+        } else {
+            alert('Sorry, the maximum value was reached');
+            $(this).val($(this).data('oldValue'));
+        }
+
+
+    });
+    $(".input-number").keydown(function (e) {
+        // Allow: backspace, delete, tab, escape, enter and .
+        if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 190]) !== -1 ||
+            // Allow: Ctrl+A
+            (e.keyCode == 65 && e.ctrlKey === true) ||
+            // Allow: home, end, left, right
+            (e.keyCode >= 35 && e.keyCode <= 39)) {
+            // let it happen, don't do anything
+            return;
+        }
+        // Ensure that it is a number and stop the keypress
+        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+            e.preventDefault();
+        }
+    });
+
+
+
+
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('.count').prop('disabled', true);
+        $(document).on('click', '#plus', function () {
+            $('.count').val(parseInt($('.count').val()) + 1);
+        });
+        $(document).on('click', '#minus', function () {
+            $('.count').val(parseInt($('.count').val()) - 1);
+            if ($('.count').val() == 0) {
+                $('.count').val(1);
+            }
+        });
+    });
+
+
+</script>
+
+{% endblock %}
